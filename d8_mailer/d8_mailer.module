@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * implements hook_mail_alter()
+ */
+function d8_mailer_mail_alter(&$message) {
+
+  // only alter contact forms
+  if (!empty($message['id']) && $message['id'] == 'contact_page_mail') {
+
+  // make it a bit neater to access fields
+    $contact_message = $message['params']['contact_message'];
+	/*custom field added through configuration*/
+    $name = $contact_message->get('field_name')->getString();
+	$country = $contact_message->get('field_country')->getString();
+	$questions = $contact_message->get('field_questions')->getString();
+	$contactmessage = $contact_message->getMessage();
+	$contact_to_followup = $contact_message->get('field_follow_up_radio')->getString();
+	$by_phone = $contact_message->get('field_follow_up_contact')->getString();
+	$by_email = $contact_message->get('field_follow_up_email')->getString();
+	$by_mail = $contact_message->get('field_by_mail')->getString();
+	$client = $contact_message->get('field_gbt_client')->getString();
+	
+	/*Unsetting message body field*/
+	$message['body'] = [];
+	/*sending html formatted email*/
+	$message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
+	
+     // add plain text body string into the $message['body'] array
+    $message_list = array('Name' => $name , 'Country' => $country , 'Questions' => $questions , 
+						'ContactMessage' => $contactmessage , 'How can we contact ?' => $contact_to_followup , 
+						'By Phone' => $by_phone ,'By Email' => $by_email , 'By Mail' => $by_mail , 
+						'Client' => $client);
+    // In line css to handle Design. 					
+	$newdata = '<div class="gbtcontact_emailtemplate" style="border:0.5px solid #ADAFAF; text-align: left; padding:3%; width:45%;"><b>Name:</b> ' .$message_list['Name']. '<br><br><b>Country:</b> ' .$message_list['Country'].  '<br><br><b>Question:</b> ' .$message_list['Questions']. '<br><br><b>Message:</b> ' .$message_list['ContactMessage']. '<br><br><b>How can we contact you to follow up?:</b> ' .$message_list['How can we contact you to follow up?']. '<br><br><b>By Phone:</b> ' .$message_list['By Phone']. '<br><br><b>Client:</b> ' .$message_list['Client'].'</div>';
+
+    // Assigning new message to mail body.
+	$message['body'][] = $newdata;
+    }
+}

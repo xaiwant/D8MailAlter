@@ -1,0 +1,5 @@
+name: D8 Mailer
+description: 'Custom module for aletring mail send through drupal core.'
+type: module
+core: 8.x
+package: Custom
